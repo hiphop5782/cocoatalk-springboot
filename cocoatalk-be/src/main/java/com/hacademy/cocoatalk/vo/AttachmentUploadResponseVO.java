@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
-public class ProfileUploadRequestVO {
-	private String nickname;
-	private String profile;
+public class AttachmentUploadResponseVO {
+	private String fileName;
+	private long fileSize;
 }

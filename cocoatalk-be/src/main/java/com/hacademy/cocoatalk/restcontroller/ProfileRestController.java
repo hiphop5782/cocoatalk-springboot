@@ -9,6 +9,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
@@ -34,13 +37,14 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/profile")
 public class ProfileRestController {
 	
+	public static final String PATH = "cocoatalk/profile";
+	
 	@PostMapping("/")
 	public void upload(@RequestBody ProfileUploadRequestVO request) {
-		File dir = new File(System.getProperty("user.home"), "profile");
+		File dir = new File(System.getProperty("user.home"), PATH);
 		if(!dir.exists()) dir.mkdirs();
 		
 		File target = new File(dir, request.getNickname());
-		System.out.println(target.getAbsolutePath());
 		try (OutputStream out = new FileOutputStream(target)) {
 			String base64Str = request.getProfile().replaceFirst("^data:image/\\w+;base64,", "");
 			byte[] profileBinary = Base64.getDecoder().decode(base64Str);
@@ -53,9 +57,8 @@ public class ProfileRestController {
 	
 	@GetMapping("/{nickname}")
 	public ResponseEntity<ByteArrayResource> download(@PathVariable String nickname) throws IOException {
-		System.out.println("nickname = " + nickname);
 		try {
-			File dir = new File(System.getProperty("user.home"), "profile");
+			File dir = new File(System.getProperty("user.home"), PATH);
 			if(!dir.exists()) throw new Exception();
 			
 			File target = new File(dir, nickname);
