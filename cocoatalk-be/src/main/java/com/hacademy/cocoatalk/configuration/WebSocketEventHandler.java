@@ -8,6 +8,7 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
+import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 
 import com.hacademy.cocoatalk.service.WebSocketUserService;
 import com.hacademy.cocoatalk.vo.PublicUserInOutResponseVO;
@@ -51,9 +52,20 @@ public class WebSocketEventHandler {
 		String sessionId = accessor.getSessionId();
 		String nickname = userService.remove(sessionId);
 		
+//		userService.remove(sessionId);
 		messagingTemplate.convertAndSend("/public/system", PublicUserInOutResponseVO.builder()
 				.nickname(nickname)
 				.action("leave")
 			.build());
+	}
+	@EventListener
+	public void userSubscribe(SessionSubscribeEvent event) {
+		//헤더 정보를 추출
+		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());//분석해!
+		String sessionId = accessor.getSessionId();
+		
+		if(accessor.getDestination().equals("/public/users")) {
+			messagingTemplate.convertAndSend("/public/users", userService.getList());
+		}
 	}
 }
