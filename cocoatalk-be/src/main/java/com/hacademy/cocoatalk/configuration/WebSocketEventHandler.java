@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import org.springframework.web.socket.messaging.SessionSubscribeEvent;
+import org.springframework.web.socket.messaging.SessionUnsubscribeEvent;
 
 import com.hacademy.cocoatalk.service.WebSocketUserService;
 import com.hacademy.cocoatalk.vo.PublicUserInOutResponseVO;
@@ -60,6 +61,16 @@ public class WebSocketEventHandler {
 	}
 	@EventListener
 	public void userSubscribe(SessionSubscribeEvent event) {
+		//헤더 정보를 추출
+		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());//분석해!
+		String sessionId = accessor.getSessionId();
+		
+		if(accessor.getDestination().equals("/public/users")) {
+			messagingTemplate.convertAndSend("/public/users", userService.getList());
+		}
+	}
+	@EventListener
+	public void userUnsubscribe(SessionUnsubscribeEvent event) {
 		//헤더 정보를 추출
 		StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());//분석해!
 		String sessionId = accessor.getSessionId();
